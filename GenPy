@@ -1,0 +1,110 @@
+import numpy as np
+
+
+def is_valid(grid, center, grid_size):
+    if not grid[center, center] == 'V':
+        return False
+    elif grid[center - 1, center] == 'L' or grid[center + 1, center] == 'L' or \
+            grid[center, center - 1] == 'L' or grid[center, center + 1] == 'L':
+        return False
+    for x in range(1, grid_size - 2):
+        for y in range(1, grid_size - 2):
+            if grid[x, y] == 'A':
+                return not (grid[x - 1, y] == 'L' or grid[x + 1, y] == 'L' or grid[x, y - 1] == 'L' or
+                            grid[x, y + 1] == 'L')
+            elif grid[x, y] == 'L':
+                return not (grid[x - 1, y] == 'A' or grid[x + 1, y] == 'A' or grid[x, y - 1] == 'A' or
+                            grid[x, y + 1] == 'A')
+            else:
+                return True
+
+
+def place(grid, x, y, type):
+    grid[x, y] = type
+
+
+np.random.seed(42)  # Para reprodutibilidade
+
+# Inicialização do grid
+subgrid_size = 9
+grid_size = subgrid_size + 4
+types = ['A', 'L', ' ']
+ot = [1, 4, 7, 9]
+
+# Criar lista de todas as posições possíveis
+# posicoes_possiveis = np.array([(i, j) for j in range(grid_size) for i in range(grid_size)])
+
+# Inicialização do grid para cada iteração
+grid = np.full((grid_size, grid_size), ' ', dtype=str)
+center = grid_size // 2
+grid[center, center] = 'V'
+
+# Armazenar a melhor configuração
+melhor_contagem_P = 0
+melhor_configuracao = None  # np.copy(grid)
+grid_inter = None  # np.copy(grid)
+# contagem_P = 0
+
+# Embaralhar todas as posições possíveis
+# posicoes_embaralhadas = np.random.permutation(posicoes_possiveis)
+# for x, y in posicoes_embaralhadas:  # Preencher o grid
+# Embaralhar os tipos
+#    tipos_embaralhados = np.random.permutation(types)
+# for tipo in tipos_embaralhados:
+for iterativo in range(3):
+    for i0 in ot:
+        for j0 in ot:
+            grid = np.copy(melhor_configuracao)
+            for i1 in types:
+                if not (i0 + 0 == center and j0 + 0 == center):
+                    place(grid, i0 + 0, j0 + 0, i1)
+                for i2 in types:
+                    if not (i0 + 0 == center and j0 + 1 == center):
+                        place(grid, i0 + 0, j0 + 1, i2)
+                    for i3 in types:
+                        if not (i0 + 0 == center and j0 + 2 == center):
+                            place(grid, i0 + 0, j0 + 2, i3)
+                        for i4 in types:
+                            if not (i0 + 1 == center and j0 + 0 == center):
+                                place(grid, i0 + 1, j0 + 0, i4)
+                            for i5 in types:
+                                if not (i0 + 1 == center and j0 + 1 == center):
+                                    place(grid, i0 + 1, j0 + 1, i5)
+                                for i6 in types:
+                                    if not (i0 + 1 == center and j0 + 2 == center):
+                                        place(grid, i0 + 1, j0 + 2, i6)
+                                    for i7 in types:
+                                        if not (i0 + 2 == center and j0 + 0 == center):
+                                            place(grid, i0 + 2, j0 + 0, i7)
+                                        for i8 in types:
+                                            if not (i0 + 2 == center and j0 + 1 == center):
+                                                place(grid, i0 + 2, j0 + 1, i8)
+                                            for i9 in types:
+                                                if not (i0 + 2 == center and j0 + 2 == center):
+                                                    place(grid, i0 + 2, j0 + 2, i9)
+                                                if is_valid(grid, center, grid_size):
+                                                    grid_inter = np.copy(grid)
+                                                    for i in range(2, subgrid_size + 1):
+                                                        for j in range(2, subgrid_size + 1):
+                                                            if ((grid_inter[i - 1, j] == 'L' or
+                                                                 grid_inter[i + 1, j] == 'L' or
+                                                                 grid_inter[i, j - 1] == 'L' or
+                                                                 grid_inter[i, j + 1] == 'L') and
+                                                                    (grid_inter[i - 1, j] == 'A' or
+                                                                     grid_inter[i + 1, j] == 'A' or
+                                                                     grid_inter[i, j - 1] == 'A' or
+                                                                     grid_inter[i, j + 1] == 'A')):
+                                                                grid_inter[i, j] = 'P'
+                                                            elif grid_inter[i, j] == 'P':
+                                                                grid_inter[i, j] = ' '
+                                                    if np.sum(grid_inter == 'P') > melhor_contagem_P:
+                                                        melhor_configuracao = np.copy(grid_inter)
+                                                        melhor_contagem_P = np.sum(grid_inter == 'P')
+                                                        # Imprimir sempre que encontrar uma contagem de 'P' maior
+                                                        print(melhor_configuracao, "'P':", melhor_contagem_P,
+                                                              "Iterativo:", iterativo)
+
+# Exibir o grid e a contagem de P da melhor configuração ao final
+print("\nMelhor Configuração:")
+print(melhor_configuracao)
+print("Contagem de 'P':", melhor_contagem_P)
